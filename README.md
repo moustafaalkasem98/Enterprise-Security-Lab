@@ -205,6 +205,6 @@ De offensiva momenten regleras av
 
 ## Upphovsman
 
-**Moustafa Alkasem** — [GitHub](https://github.com/moustafaalkasem98)
+**Moustafa Alkasem** — [GitHub](https://github.com/moustafaalkasem98) [LinkedIn](https://www.linkedin.com/in/moustafa-alkasem)
 
 *En del av min portfolio för roller inom IT-säkerhet, systemadministration och SOC.*
