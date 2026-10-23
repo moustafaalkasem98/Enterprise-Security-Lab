@@ -1,0 +1,88 @@
+name: 🧪 Lint & Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: "🐚 ShellCheck (bash)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          severity: warning
+        env:
+          SHELLCHECK_OPTS: --exclude=SC1091 --exclude=SC2312
+
+  powershell:
+    name: "💙 PSScriptAnalyzer"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run PSScriptAnalyzer
+        uses: microsoft/psscriptanalyzer-action@v1.1
+        with:
+          path: ./scripts
+          recurse: true
+          output: results.sarif
+      - name: Upload results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif
+        continue-on-error: true
+
+  xml-validation:
+    name: "📐 Validate XML (Wazuh rules)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate XML files
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
+          # Wazuh tillåter flera rot-element i decoder-filer, så vi slår in dem
+          # i en temporär rot inför valideringen.
+          find config -name "*.xml" -print0 | while IFS= read -r -d '' f; do
+            echo "Validerar: $f"
+            if xmllint --noout "$f" 2>/dev/null; then
+              echo "  OK (giltig XML)"
+            else
+              { echo "<wazuh-root>"; cat "$f"; echo "</wazuh-root>"; } > /tmp/check.xml
+              xmllint --noout /tmp/check.xml || { echo "FEL: ogiltig XML i $f"; exit 1; }
+              echo "  OK (flera rot-element, normalt för Wazuh-decoders)"
+            fi
+          done
+          echo "Alla XML-filer är giltiga"
+
+  secret-scan:
+    name: "🔐 Secret scanning (gitleaks)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  markdown-links:
+    name: "🔗 Check markdown links"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          folder-path: 'docs,README.md'
+          max-depth: 1
+        continue-on-error: true

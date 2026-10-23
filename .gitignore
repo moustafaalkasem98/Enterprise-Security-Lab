@@ -1,0 +1,121 @@
+# =====================================================================
+#  SOC Home Lab - .gitignore
+#  Syfte: hindra känsliga / jättestora filer från att hamna på GitHub.
+#  LÄS DETTA INNAN FÖRSTA COMMIT - det är din viktigaste säkerhetsfil.
+# =====================================================================
+
+# --- 1. HEMLIGHETER (kritiskt!) ---------------------------------------
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.ppk
+.env
+.env.*
+*.env
+secrets.*
+credentials.*
+passwords.*
+wazuh-install-files.tar      # innehåller admin-lösenord i klartext
+wazuh-passwords.txt
+*.kdbx                       # KeePass-databas
+*.keystore
+
+# --- 2. VIRTUELLA MASKINER & ISO:er (gigabyte - hör inte hemma i git) --
+*.vhd
+*.vhdx
+*.avhdx
+*.vmdk
+*.vdi
+*.ova
+*.ovf
+*.qcow2
+*.iso
+*.img
+*.vbox
+*.vmx
+*.vmxf
+*.vmss
+*.vmsn
+*.vmem
+*.vmtd
+*.lck
+*.vmdk-s001
+*.delta.vmdk
+*.nvram
+*.vmsd
+*.vmem
+
+# --- 3. LOGGAR OCH TILLFÄLLIGA FILER ----------------------------------
+*.log
+*.log.*
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- 4. EDITOR / OS ----------------------------------------------------
+.vscode/
+.idea/
+*.code-workspace
+
+# --- 5. PYTHON (om du bygger tooling) ---------------------------------
+__pycache__/
+.venv/
+venv/
+*.pyc
+
+# --- 6. UNDANTAG: tillåt mallar och exempel ---------------------------
+!*.example
+!*.template
+!config/**/*.example
+!evidence/**/.gitkeep
+!.gitkeep
+
+# --- 7. LOKALA BYGGGUIDER (publiceras INTE) ---------------------------
+# Dessa är MINA studie- och arbetsanteckningar steg för steg.
+# De hör inte hemma i ett portfolio-repo - det är som att publicera
+# läroboken man lärde sig ur. De ligger kvar lokalt, utanför git.
+guides/
+
+# --- 8. FILER FRÅN KOMMANDE FASER (spärras om de läggs i mappen) --------
+# Dessa sökvägar hör till fas 4-9 och ska INTE publiceras ännu.
+#
+# När du får filerna för en fas:
+#   1. Lägg dem på exakt dessa sökvägar i repot
+#   2. Ta bort fasens rader ur denna .gitignore
+#   3. git add -A && git commit -m "..." && git push
+#
+# Effekten: "git add -A" är alltid tryggt. En fil från en kommande fas kan
+# aldrig råka följa med av misstag.
+#
+# --- Fas 4: Active Directory & AGDLP ---
+scripts/windows/New-ADOUStructure.ps1
+scripts/windows/New-LabUsers.ps1
+scripts/windows/users-template.csv
+#
+# --- Fas 5: GPO-härdning ---
+scripts/windows/Set-AuditPolicy.ps1
+scripts/windows/Deploy-Sysmon.ps1
+config/sysmon/
+#
+# --- Fas 6: Linux-härdning ---
+scripts/linux/harden-ssh.sh
+scripts/linux/baseline-hardening.sh
+config/ssh/
+#
+# --- Fas 7: Wazuh SIEM ---
+scripts/linux/install-wazuh-agent.sh
+config/wazuh/
+#
+# --- Fas 9: Detektion & incidentrapporter ---
+evidence/incident-reports/

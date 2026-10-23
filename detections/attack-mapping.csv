@@ -1,0 +1,23 @@
+MITRE_ID,Tactic,Technique,Attack_Tool_Technique,Target,Log_Source,Event_ID,Detection_Rule,Status,Notes
+T1046,Discovery,Network Service Discovery,"nmap -sn / -sS / -A",DMZ/LAN,OPNsense filterlog,-,100020,Detected,"Blocked traffic triggers scanning rule after 20+ events/60s"
+T1046,Discovery,Network Service Discovery,nmap port sweep,DMZ,OPNsense filterlog,-,100022,Detected,"15+ different dstports to same dstip"
+T1595,Reconnaissance,Active Scanning,"nmap -sV, nikto",DMZ,Apache access.log,Sysmon 3,31100+,Partial,"Requires apache log collection enabled on agent"
+T1110.001,Credential Access,Password Guessing,"hydra -l socadmin -P list ssh",LNX-WEB01,auth.log,-,"5710 -> 5712",Detected,"fail2ban bans after 3 attempts"
+T1110.001,Credential Access,Password Guessing,crackmapexec smb,DC-01/FS01,Windows Security,4625,"60204, 60122",Detected,"Account lockout after 5 attempts (GPO)"
+T1110.003,Credential Access,Password Spraying,"crackmapexec --users --passwords",DC-01,Windows Security,4625,60204,Detected,Requires tuning to avoid FP on helpdesk
+T1110,Credential Access,Brute Force,Successful login after failures,Any,Correlation,"4625 -> 4624",100102,Detected,"Custom correlation rule - highest severity"
+T1558.003,Credential Access,Kerberoasting,"impacket-GetUserSPNs -request",DC-01,Windows Security,4769,100111,Gap,"Requires custom rule with TicketEncryptionType=0x17"
+T1558.004,Credential Access,AS-REP Roasting,impacket-GetNPUsers,DC-01,Windows Security,4768,100115,Gap,"PreAuthType=0 detection needs custom rule"
+T1087.002,Discovery,Domain Account Discovery,"enum4linux -U, Get-ADUser",DC-01,Windows Security,4776,60122,Partial,"Legit admin activity creates false positives"
+T1021.002,Lateral Movement,SMB/Admin Shares,impacket-psexec,FS01,Windows Security,"4624, 5140, 7045",- ,Gap,"Service creation (7045) rule needs to be added"
+T1021.001,Lateral Movement,Remote Desktop,hydra rdp / RDP session,FS01,Windows Security,4624 (type 10),- ,Partial,"Requires RDP logon type filter"
+T1003.001,Credential Access,LSASS Memory,mimikatz sekurlsa::logonpasswords,WIN11-01,"Sysmon 10, Security 4688",1 / 10 / 4688,100001,Detected,"Wazuh built-in Mimikatz rule + Sysmon ProcessAccess"
+T1003,Credential Access,OS Credential Dumping,"procdump lsass.exe",WIN11-01,Sysmon,10,100130,Detected,Command-line based detection
+T1136.001,Persistence,Create Account,"net user svc-backdoor /add",WIN11-01,Windows Security,4720,60109,Detected,
+T1098.001,Persistence,Additional Local/Group Membership,"net localgroup administrators /add",WIN11-01,Windows Security,4732,60112,Detected,
+T1562.001,Defense Evasion,Disable or Modify Tools,"wevtutil cl Security",WIN11-01,Windows Security,1102,- ,Gap,"Needs custom rule for log clearing"
+T1562.004,Defense Evasion,Impair Defenses,Blocked by firewall (segmentation),OPNsense,OPNsense filterlog,-,100003,Detected,"RED->LAN and DMZ->LAN blocked and logged"
+T1562.006,Defense Evasion,Indicator Blocking,Attack against SIEM,OPNsense,OPNsense filterlog,-,100011,Detected,"RED->SOC blocked - rule level 12"
+T1190,Initial Access,Exploit Public-Facing Application,"sqlmap, DVWA",LNX-WEB01,Apache error/access.log,-,"31100-31169",Partial,"Requires apache log collection + Suricata"
+T1071.001,Command and Control,Web Protocols,Reverse shell,DMZ,Sysmon,3/1,- ,Gap,"Needs network beaconing detection"
+T1499,Impact,Endpoint DoS,hping3 SYN flood,DMZ,OPNsense filterlog,-,100021,Partial,"Suricata ET rules recommended"
